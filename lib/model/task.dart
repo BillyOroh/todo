@@ -1,15 +1,12 @@
-import 'package:flutter/material.dart';
 
 class Task {
-  Widget title;
-  Widget icon;
-  String titleText;
-  bool doneOrNot;
+  String todo;
+  bool isDone;
 
   Task({
-    required this.title,
-    required this.icon,
-    required this.titleText,
-    required this.doneOrNot,
+    required this.todo,
+    required this.isDone,
+
   });
+
 }

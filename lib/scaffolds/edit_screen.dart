@@ -3,57 +3,45 @@ import 'package:todo/components/my_isdone_button.dart';
 import 'package:todo/components/my_text_field.dart';
 import 'package:todo/components/my_float_button.dart';
 
+import '../model/task.dart';
+
 class EditScreen extends StatefulWidget {
-  final String titleOnly;
-  final bool check;
   const EditScreen({
     super.key,
-    required this.titleOnly,
-    required this.check,
+    this.task,
   });
+
+  final Task? task;
 
   @override
   State<EditScreen> createState() => _EditScreenState();
 }
 
 class _EditScreenState extends State<EditScreen> {
-  bool isDone = false;
-
-  String title = '';
   final TextEditingController editController = TextEditingController();
+
+  Task? task;
 
   @override
   void initState() {
     super.initState();
-    editController.text = widget.titleOnly;
-    isDone = widget.check;
+
+    task = widget.task;
+
+    if (task != null) {
+      editController.text = task!.todo;
+    }
   }
 
   void switchIsDone() {
     setState(() {
-      isDone = !isDone;
+      task!.isDone = !task!.isDone;
     });
-  }
-
-  Text taskDoneOrNot() {
-    return isDone
-        ? Text(
-            editController.text,
-            style: const TextStyle(decoration: TextDecoration.lineThrough),
-          )
-        : Text(editController.text, style: null);
-  }
-
-  Text labelDoneOrNot() {
-    return isDone ? const Text('is done') : const Text('is not done yet');
-  }
-
-  Icon iconDoneOrNot() {
-    return isDone ? const Icon(Icons.check) : const Icon(Icons.remove_outlined);
   }
 
   @override
   Widget build(BuildContext context) {
+    final isAdding = task == null;
     return Scaffold(
       body: Center(
         child: SizedBox(
@@ -62,55 +50,54 @@ class _EditScreenState extends State<EditScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // title
-              const Text(
-                'Edit Todo',
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              Text(
+                isAdding ? 'Add Todo' : 'Edit Todo',
+                style: const TextStyle(
+                    fontSize: 20.0, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20.0),
-              // textfield
               MyTextField(controller: editController),
               const SizedBox(height: 20.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  MyIsDoneButton(
-                    onPressed: () {
-                      switchIsDone();
-                    },
-                    icon: iconDoneOrNot(),
-                    label: labelDoneOrNot(),
-                  ),
-                ],
-              ),
+              isAdding
+                  ? const SizedBox()
+                  : Align(
+                      alignment: Alignment.centerRight,
+                      child: MyIsDoneButton(
+                        onPressed: () {
+                          switchIsDone();
+                        },
+                        icon: Icon(
+                          task?.isDone ?? false ? Icons.check : Icons.remove,
+                        ),
+                        label: Text(
+                          task?.isDone ?? false ? "done" : "not done",
+                        ),
+                      ),
+                    ),
               const SizedBox(height: 300.0),
               // buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  isAdding
+                      ? const SizedBox()
+                      : MyFloatButton(
+                          heroTag: 'delete',
+                          backgroundColor: Colors.red,
+                          onPressed: () {
+                            if (task != null) {
+                              task!.todo = "delete";
+                            }
+                            Navigator.pop(context, task);
+                          },
+                          child: const Icon(Icons.delete),
+                        ),
                   MyFloatButton(
-                    heroTag: 'heroTag1',
-                    backgroundColor: Colors.grey.shade900,
-                    onPressed: () {
-                      bool delete = true;
-                      Navigator.pop(context, [
-                        delete,
-                      ]);
-                    },
-                    child: const Icon(Icons.delete),
-                  ),
-                  MyFloatButton(
-                    heroTag: 'heroTag2',
+                    heroTag: 'add',
                     backgroundColor: Colors.grey,
                     onPressed: () {
-                      title = editController.text;
-                      if (title.isNotEmpty) {
-                        Navigator.pop(context, [
-                          taskDoneOrNot(),
-                          iconDoneOrNot(),
-                          title,
-                          isDone,
-                        ]);
-                      }
+                      task = Task(todo: editController.text, isDone: false);
+                      Navigator.pop(context, task);
                     },
                     child: const Icon(Icons.add),
                   ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:todo/model/task.dart';
-import 'package:todo/scaffolds/add_screen.dart';
 import 'package:todo/scaffolds/edit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,51 +12,70 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Task> tasks = List.empty(growable: true);
-  int selectedIndex = -1;
-  bool isLineThrough = false;
+  List<Task> tasks = [];
 
-  _navigateToAddScreen(BuildContext context) async {
-    final List results = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AddScreen()),
-    );
-    setState(() {
-      tasks.add(Task(
-          title: results[0],
-          icon: results[1],
-          titleText: results[2],
-          doneOrNot: results[3]));
-      if (results[3] == true) {
-        isLineThrough = true;
-      }
-    });
-  }
+  int selectedIndex = 0;
 
-  _navigateToEditScreen(BuildContext context) async {
-    final List results = await Navigator.push(
+  // _navigateToAddScreen(BuildContext context) async {
+  //   final List? results = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const AddScreen()),
+  //   );
+  //   if (results != null) {
+  //     setState(() {
+  //       tasks.add(Task(
+  //           title: results[0],
+  //           icon: results[1],
+  //           titleText: results[2],
+  //           doneOrNot: results[3]));
+  //       if (results[3] == true) {
+  //         isLineThrough = true;
+  //       }
+  //     });
+  //   }
+  // }
+
+  void _navigateToEditScreen(BuildContext context, Task? task) async {
+    final Task? result = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => EditScreen(
-                titleOnly: tasks[selectedIndex].titleText,
-                check: tasks[selectedIndex].doneOrNot,
-              )),
+        builder: (context) => EditScreen(task: task),
+      ),
     );
-    if (results[0] == true) {
+    if (result == null) {
+      return;
+    }
+
+    print("$selectedIndex ${result.todo} ${result.isDone}");
+
+
+    //delete
+    if (result.todo == "delete") {
+      // tasks.indexWhere((e)=>e.id=="2") -1 01234;
       setState(() {
         tasks.removeAt(selectedIndex);
       });
-    } else {
-      setState(() {
-        tasks[selectedIndex].title = results[0];
-        tasks[selectedIndex].icon = results[1];
-        tasks[selectedIndex].titleText = results[2];
-        tasks[selectedIndex].doneOrNot = results[3];
-        if (results[3] == true) {
-          isLineThrough = true;
-        }
-      });
+      print("delete_operation delete ${result.todo}");
+      return;
     }
+
+    // add
+    if (result.isDone == false && result.todo.isNotEmpty) {
+      setState(() {
+        tasks.add(result);
+      });
+      print("add_operation ${result.todo}");
+      return;
+
+    }
+
+    //edit
+    setState(() {
+      tasks.insert(selectedIndex, result);
+      tasks.removeAt(selectedIndex);
+      print("edit_operation ${result.todo} $selectedIndex");
+    });
+    return;
   }
 
   @override
@@ -77,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () {
-                  _navigateToAddScreen(context);
+                  _navigateToEditScreen(context, null);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -110,28 +128,50 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListView.builder(
                   itemCount: tasks.length,
                   itemBuilder: (context, index) {
-                    return Card(
-                      child: ListTile(
-                        leading: tasks[index].icon,
-                        title: isLineThrough
-                            ? tasks[index].title
-                            : Text(tasks[index].titleText),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            setState(() {
-                              selectedIndex = index;
-                              _navigateToEditScreen(context);
-                            });
-                          },
-                        ),
-                      ),
+                    final Task task = tasks[index];
+                    return TodoItemCard(
+                      task: task,
+                      onTap: () {
+                        selectedIndex = index;
+                        _navigateToEditScreen(context, tasks[selectedIndex]);
+                      },
                     );
                   },
                 ),
               )
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class TodoItemCard extends StatelessWidget {
+  const TodoItemCard({
+    super.key,
+    required this.task,
+    required this.onTap,
+  });
+
+  final Task task;
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Icon(task.isDone ? Icons.check : Icons.remove),
+        title: Text(
+          task.todo,
+          style: TextStyle(
+            decoration:
+                task.isDone ? TextDecoration.lineThrough : TextDecoration.none,
+          ),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit),
+          onPressed: onTap,
         ),
       ),
     );
