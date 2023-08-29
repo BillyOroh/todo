@@ -137,11 +137,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-// isDone
-//         ? Text(
-//             editController.text,
-//             style: const TextStyle(decoration: TextDecoration.lineThrough),
-//           )
-//         : Text(editController.text, style: null);
-
-// tasks[index].title,
