@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 
 class MyIsDoneButton extends StatelessWidget {
   final void Function()? onPressed;
-  final Widget icon;
-  final Widget label;
+  final Color backgroundColor;
 
   const MyIsDoneButton(
-      {super.key,
-      required this.onPressed,
-      required this.icon,
-      required this.label});
+      {super.key, required this.onPressed, required this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: icon,
-      label: label,
+      icon: const Icon(
+        color: Colors.black,
+        Icons.check,
+      ),
+      label: const Text(style: TextStyle(color: Colors.black), "done"),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
+        backgroundColor: backgroundColor,
         shape: const RoundedRectangleBorder(
           side: BorderSide(color: Colors.black),
           borderRadius: BorderRadius.all(
