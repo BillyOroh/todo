@@ -62,18 +62,12 @@ class _EditScreenState extends State<EditScreen> {
                   : Align(
                       alignment: Alignment.centerRight,
                       child: MyIsDoneButton(
-                        onPressed: () {
-                          switchIsDone();
-                        },
-                        icon: Icon(
-                          color: Colors.black,
-                          task?.isDone ?? false ? Icons.check : Icons.remove,
-                        ),
-                        label: Text(
-                          style: const TextStyle(color: Colors.black),
-                          task?.isDone ?? false ? "done" : "not done",
-                        ),
-                      ),
+                          onPressed: () {
+                            switchIsDone();
+                          },
+                          backgroundColor: task?.isDone ?? false
+                              ? Colors.grey
+                              : Colors.white),
                     ),
               const SizedBox(height: 300.0),
               // buttons
