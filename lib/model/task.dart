@@ -1,4 +1,3 @@
-
 class Task {
   String todo;
   bool isDone;
@@ -6,7 +5,5 @@ class Task {
   Task({
     required this.todo,
     required this.isDone,
-
   });
-
 }
